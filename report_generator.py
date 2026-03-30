@@ -51,11 +51,8 @@ def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
     ax.spines['left'].set_color('#e2e5ea')
     ax.spines['bottom'].set_color('#e2e5ea')
     ax.set_title('Promedio Uptime Mensual', fontsize=12, fontweight='bold', color=DARK, pad=12)
-
-    # Leyenda arriba a la izquierda para no superponerse con el YTD box
     ax.legend(fontsize=8, loc='upper left', framealpha=0.9, edgecolor='#e2e5ea')
 
-    # YTD box abajo a la derecha, separado de la leyenda
     if ytd is not None:
         ax.text(0.98, 0.04, f"PROMEDIO YTD    {ytd:.2f}", transform=ax.transAxes,
                 fontsize=10, fontweight='bold', color=DARK, ha='right', va='bottom',
@@ -69,14 +66,17 @@ def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
     return base64.b64encode(buf.read()).decode('utf-8')
 
 
+def fmt(val):
+    """Format a number as XX,XX or 0,00 if zero/None."""
+    if val is None or val == 0:
+        return '0,00'
+    return f"{val:.2f}".replace('.', ',')
+
+
 def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     meses_data = data["meses"]
     ytd = data["ytd"]
     chart_b64 = generate_chart_base64(meses_data, ytd=ytd)
-
-    # Uptime del ultimo mes
-    ultimo_mes_num = max(meses_data.keys()) if meses_data else None
-    ultimo_mes_promedio = meses_data[ultimo_mes_num]["promedio"] if ultimo_mes_num else None
 
     trimestres = {"Q1": [1,2,3], "Q2": [4,5,6], "Q3": [7,8,9], "Q4": [10,11,12]}
 
@@ -98,27 +98,36 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
                   <td class="fecha-col">{fecha_str}</td>
                   <td class="desc-col">{ev['descripcion_incidente']}</td>
                   <td>{ev['total_hs_mes']}</td>
-                  <td class="caida-col">{f"{ev['caida_flex_d']:.2f}" if ev['caida_flex_d'] else '0,00'}</td>
-                  <td class="caida-col">{f"{ev['caida_mop_dlp']:.2f}" if ev['caida_mop_dlp'] else '0,00'}</td>
-                  <td class="caida-col">{f"{ev['caida_cupones']:.2f}" if ev['caida_cupones'] else '0,00'}</td>
-                  <td class="perf-col">{f"{ev['baja_perf_flex_d']:.2f}" if ev['baja_perf_flex_d'] else '0,00'}</td>
-                  <td class="perf-col">{f"{ev['baja_perf_mop_dlp']:.2f}" if ev['baja_perf_mop_dlp'] else '0,00'}</td>
-                  <td class="perf-col">{f"{ev['baja_perf_cupones']:.2f}" if ev['baja_perf_cupones'] else '0,00'}</td>
-                  <td class="stats-col"></td><td class="stats-col"></td><td class="stats-col"></td>
-                  <td class="stats-col"></td><td class="stats-col"></td><td class="stats-col"></td>
+                  <td class="caida-col">{fmt(ev['caida_flex_d'])}</td>
+                  <td class="caida-col">{fmt(ev['caida_mop_dlp'])}</td>
+                  <td class="caida-col">{fmt(ev['caida_cupones'])}</td>
+                  <td class="perf-col">{fmt(ev['baja_perf_flex_d'])}</td>
+                  <td class="perf-col">{fmt(ev['baja_perf_mop_dlp'])}</td>
+                  <td class="perf-col">{fmt(ev['baja_perf_cupones'])}</td>
+                  <td class="uptime-col">{fmt(ev['caida_flex_d'])}</td>
+                  <td class="uptime-col">{fmt(ev['caida_mop_dlp'])}</td>
+                  <td class="uptime-col">{fmt(ev['caida_cupones'])}</td>
+                  <td class="perform-col">{fmt(ev['baja_perf_flex_d'])}</td>
+                  <td class="perform-col">{fmt(ev['baja_perf_mop_dlp'])}</td>
+                  <td class="perform-col">{fmt(ev['baja_perf_cupones'])}</td>
                   <td class="promedio-col"></td>
                 </tr>"""
 
             # TOTAL mes DESPUES de los eventos
             rows_html += f"""
             <tr class="month-header">
-              <td colspan="2">TOTAL {mes_label}</td>
+              <td class="fecha-col"></td>
+              <td class="desc-col">TOTAL {mes_label}</td>
               <td>{m['total_hs']}</td>
               <td class="caida-col"></td><td class="caida-col"></td><td class="caida-col"></td>
               <td class="perf-col"></td><td class="perf-col"></td><td class="perf-col"></td>
-              <td class="stats-col">{m['uptime_flex']}%</td><td class="stats-col">{m['uptime_mop']}%</td><td class="stats-col">{m['uptime_cup']}%</td>
-              <td class="stats-col">{m['perform_flex']}%</td><td class="stats-col">{m['perform_mop']}%</td><td class="stats-col">{m['perform_cup']}%</td>
-              <td class="promedio-col">{m['promedio']}%</td>
+              <td class="uptime-col">{fmt(m['uptime_flex'])}</td>
+              <td class="uptime-col">{fmt(m['uptime_mop'])}</td>
+              <td class="uptime-col">{fmt(m['uptime_cup'])}</td>
+              <td class="perform-col">{fmt(m['perform_flex'])}</td>
+              <td class="perform-col">{fmt(m['perform_mop'])}</td>
+              <td class="perform-col">{fmt(m['perform_cup'])}</td>
+              <td class="promedio-col">{fmt(m['promedio'])}</td>
             </tr>"""
 
         if q_has_data:
@@ -129,9 +138,9 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
               <td colspan="2">TOTAL {q_name}</td><td></td>
               <td class="caida-col"></td><td class="caida-col"></td><td class="caida-col"></td>
               <td class="perf-col"></td><td class="perf-col"></td><td class="perf-col"></td>
-              <td class="stats-col"></td><td class="stats-col"></td><td class="stats-col"></td>
-              <td class="stats-col"></td><td class="stats-col"></td><td class="stats-col"></td>
-              <td class="promedio-col">{q_promedio}%</td>
+              <td class="uptime-col"></td><td class="uptime-col"></td><td class="uptime-col"></td>
+              <td class="perform-col"></td><td class="perform-col"></td><td class="perform-col"></td>
+              <td class="promedio-col">{fmt(q_promedio)}</td>
             </tr>"""
 
     return f"""<!DOCTYPE html>
@@ -143,7 +152,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
   <style>
     *{{box-sizing:border-box;margin:0;padding:0}}
     body{{font-family:'DM Sans',Arial,sans-serif;background:#f5f5f5;color:#2d2d2d;font-size:14px;line-height:1.5}}
-    .page{{max-width:1100px;margin:0 auto;padding:32px 24px}}
+    .page{{max-width:1200px;margin:0 auto;padding:32px 24px}}
     .header{{background:#2d2d2d;color:white;border-radius:10px 10px 0 0;padding:24px 28px;display:flex;justify-content:space-between;align-items:center}}
     .header h1{{font-size:22px;font-weight:700}}
     .header .subtitle{{font-size:13px;color:#FFC000;margin-top:4px;font-weight:500}}
@@ -160,32 +169,78 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     .tag.red{{background:#FFCCCC;color:#C00000}}
     .chart-img{{width:100%;border-radius:6px}}
     .table-scroll{{overflow-x:auto}}
-    table{{width:100%;border-collapse:collapse;font-size:12px}}
-    .col-group th{{padding:6px 8px;text-align:center;font-weight:700;font-size:11px;color:white}}
-    .th-main{{background:#2d2d2d}}.th-caida{{background:#C00000}}.th-perf{{background:#FF8C00}}.th-stats{{background:#2E75B6}}.th-promedio{{background:#375623}}
-    .col-sub th{{background:#f0f0f0;padding:6px 8px;text-align:center;font-weight:600;font-size:10px;color:#4a4a4a;border-bottom:2px solid #e2e5ea}}
+    table{{width:100%;border-collapse:collapse;font-size:11px}}
+
+    /* GROUP HEADERS */
+    .col-group th{{padding:7px 8px;text-align:center;font-weight:700;font-size:11px;color:white}}
+    .th-fecha{{background:#FFC000;color:#2d2d2d}}
+    .th-desc{{background:#FFC000;color:#2d2d2d}}
+    .th-main{{background:#2d2d2d}}
+    .th-caida{{background:#C00000}}
+    .th-perf{{background:#FF8C00}}
+    .th-uptime{{background:#C00000}}
+    .th-perform{{background:#FF8C00}}
+    .th-promedio{{background:#375623}}
+
+    /* SUB HEADERS — same color as group */
+    .col-sub th{{padding:6px 8px;text-align:center;font-weight:600;font-size:10px;border-bottom:2px solid rgba(255,255,255,0.3)}}
     .col-sub th.left{{text-align:left}}
-    tbody td{{padding:7px 8px;border-bottom:1px solid #e2e5ea;text-align:center;vertical-align:middle}}
-    tbody td:first-child{{text-align:left}}
-    .fecha-col{{white-space:nowrap;font-size:11px;color:#4a4a4a;width:80px}}
-    .desc-col{{text-align:left;font-size:11px;color:#4a4a4a;max-width:200px;word-wrap:break-word;white-space:normal}}
-    .caida-col{{background:#FFF0F0}}.perf-col{{background:#FFFBF0}}.stats-col{{background:#F0F6FF}}
+    .sub-fecha{{background:#FFD966;color:#2d2d2d}}
+    .sub-desc{{background:#FFD966;color:#2d2d2d}}
+    .sub-main{{background:#444;color:white}}
+    .sub-caida{{background:#a00000;color:white}}
+    .sub-perf{{background:#cc6600;color:white}}
+    .sub-uptime{{background:#a00000;color:white}}
+    .sub-perform{{background:#cc6600;color:white}}
+    .sub-promedio{{background:#2a4a20;color:white}}
+
+    /* DATA CELLS */
+    tbody td{{padding:6px 8px;border-bottom:1px solid #e2e5ea;text-align:center;vertical-align:middle}}
+    .fecha-col{{white-space:nowrap;font-size:11px;color:#4a4a4a;width:80px;text-align:left}}
+    .desc-col{{text-align:left;font-size:11px;color:#4a4a4a;min-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}}
+    .caida-col{{background:#FFF0F0}}
+    .perf-col{{background:#FFF8F0}}
+    .uptime-col{{background:#FFF0F0}}
+    .perform-col{{background:#FFF8F0}}
     .promedio-col{{background:#F0FFF0;font-weight:700;color:#375623}}
-    tr.month-header td{{background:#FFC000;color:#2d2d2d;font-weight:700;font-size:11px;text-transform:uppercase;padding:7px 8px}}
-    tr.month-header .caida-col{{background:#FFD966}}tr.month-header .perf-col{{background:#FFD966}}
-    tr.month-header .stats-col{{background:#FFD966}}tr.month-header .promedio-col{{background:#E8B400;font-weight:700}}
+
+    /* MONTH TOTAL ROW */
+    tr.month-header td{{background:#FFC000;color:#2d2d2d;font-weight:700;font-size:11px;padding:7px 8px}}
+    tr.month-header .desc-col{{text-align:left;text-transform:uppercase}}
+    tr.month-header .caida-col{{background:#FFD966}}
+    tr.month-header .perf-col{{background:#FFD966}}
+    tr.month-header .uptime-col{{background:#FFD966}}
+    tr.month-header .perform-col{{background:#FFD966}}
+    tr.month-header .promedio-col{{background:#E8B400;font-weight:700}}
+
+    /* EVENT ROW */
     tr.event-row td{{background:white}}
-    tr.event-row .caida-col{{background:#FFF0F0}}tr.event-row .perf-col{{background:#FFFBF0}}
-    tr.event-row .stats-col{{background:#F0F6FF}}tr.event-row .promedio-col{{background:#F0FFF0}}
+    tr.event-row .caida-col{{background:#FFF0F0}}
+    tr.event-row .perf-col{{background:#FFF8F0}}
+    tr.event-row .uptime-col{{background:#FFF0F0}}
+    tr.event-row .perform-col{{background:#FFF8F0}}
+    tr.event-row .promedio-col{{background:#F0FFF0}}
+
+    /* QUARTER ROW */
     tr.quarter-row td{{background:#2d2d2d;color:white;font-weight:700;font-size:11px;padding:7px 8px;text-align:center}}
     tr.quarter-row td:first-child{{text-align:left}}
+    tr.quarter-row .caida-col{{background:#1a0000}}
+    tr.quarter-row .perf-col{{background:#1a0a00}}
+    tr.quarter-row .uptime-col{{background:#1a0000}}
+    tr.quarter-row .perform-col{{background:#1a0a00}}
     tr.quarter-row .promedio-col{{background:#1a4a1a;color:#90EE90}}
+
+    /* COMM TABLE */
     .comm-table{{width:100%;border-collapse:collapse;font-size:12px}}
     .comm-table th{{background:#2d2d2d;color:white;padding:8px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase}}
     .comm-table td{{padding:8px 12px;border-bottom:1px solid #e2e5ea;vertical-align:top}}
-    .comm-table tr.caida td{{background:#FFF0F0}}.comm-table tr.degradacion td{{background:#FFFBF0}}.comm-table tr.resolucion td{{background:#F0FFF4}}
+    .comm-table tr.caida td{{background:#FFF0F0}}
+    .comm-table tr.degradacion td{{background:#FFFBF0}}
+    .comm-table tr.resolucion td{{background:#F0FFF4}}
     .event-badge{{display:inline-block;padding:2px 8px;border-radius:4px;font-weight:600;font-size:11px}}
-    .event-badge.caida{{background:#FFCCCC;color:#C00000}}.event-badge.degradacion{{background:#FFEB9C;color:#7a5000}}.event-badge.resolucion{{background:#CCFFCC;color:#375623}}
+    .event-badge.caida{{background:#FFCCCC;color:#C00000}}
+    .event-badge.degradacion{{background:#FFEB9C;color:#7a5000}}
+    .event-badge.resolucion{{background:#CCFFCC;color:#375623}}
     .footer{{text-align:center;margin-top:32px;padding-top:16px;border-top:1px solid #e2e5ea;font-size:11px;color:#999}}
   </style>
 </head>
@@ -202,6 +257,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       <div class="ytd-label">Promedio acumulado</div>
     </div>
   </div>
+
   <div class="section section-first">
     <div class="section-title">Contexto</div>
     <div class="context-grid">
@@ -210,38 +266,43 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       <div class="context-card"><h4>Tipos de Evento</h4><p><span class="tag red">Caída</span> Solución offline.</p><p style="margin-top:6px"><span class="tag">Baja de Performance</span> Opera con dificultades.</p></div>
     </div>
   </div>
+
   <div class="section">
     <div class="section-title">Promedio Uptime Mensual</div>
     <img src="data:image/png;base64,{chart_b64}" class="chart-img" alt="Gráfico Uptime Mensual">
   </div>
+
   <div class="section">
     <div class="section-title">Detalle de Eventos y Estadísticas</div>
     <div class="table-scroll">
       <table>
         <thead>
           <tr class="col-group">
-            <th class="th-main" style="text-align:left">Fecha</th>
-            <th class="th-main" style="text-align:left">Descripción del Incidente</th>
+            <th class="th-fecha">Fecha</th>
+            <th class="th-desc">Descripción del Incidente</th>
             <th class="th-main">Total Hs Mes</th>
             <th class="th-caida" colspan="3">Caída</th>
             <th class="th-perf" colspan="3">Baja de Performance</th>
-            <th class="th-stats" colspan="3">Uptime</th>
-            <th class="th-stats" colspan="3">Performance</th>
+            <th class="th-uptime" colspan="3">Uptime</th>
+            <th class="th-perform" colspan="3">Performance</th>
             <th class="th-promedio">Promedio Uptime</th>
           </tr>
           <tr class="col-sub">
-            <th class="left"></th><th class="left"></th><th></th>
-            <th>Flex D</th><th>MOP/DLP</th><th>Cupones</th>
-            <th>Flex D</th><th>MOP/DLP</th><th>Cupones</th>
-            <th>Flex D</th><th>MOP/DLP</th><th>Cupones</th>
-            <th>Flex D</th><th>MOP/DLP</th><th>Cupones</th>
-            <th></th>
+            <th class="sub-fecha left"></th>
+            <th class="sub-desc left"></th>
+            <th class="sub-main"></th>
+            <th class="sub-caida">Flex D</th><th class="sub-caida">MOP/DLP</th><th class="sub-caida">Cupones</th>
+            <th class="sub-perf">Flex D</th><th class="sub-perf">MOP/DLP</th><th class="sub-perf">Cupones</th>
+            <th class="sub-uptime">Flex D</th><th class="sub-uptime">MOP/DLP</th><th class="sub-uptime">Cupones</th>
+            <th class="sub-perform">Flex D</th><th class="sub-perform">MOP/DLP</th><th class="sub-perform">Cupones</th>
+            <th class="sub-promedio"></th>
           </tr>
         </thead>
         <tbody>{rows_html}</tbody>
       </table>
     </div>
   </div>
+
   <div class="section">
     <div class="section-title">Esquema de Comunicación</div>
     <table class="comm-table">
@@ -258,6 +319,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       </tbody>
     </table>
   </div>
+
   <div class="footer">Generado automáticamente · {mes_nombre} {anio} · Ecosistema Digital · #TodosSomosDigitales</div>
 </div>
 </body>
