@@ -50,12 +50,14 @@ def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_color('#e2e5ea')
     ax.spines['bottom'].set_color('#e2e5ea')
-    ax.set_title('Promedio Uptime Mensual', fontsize=12, fontweight='bold', color=DARK, pad=12)
+
+    # Sin titulo en el grafico
     ax.legend(fontsize=8, loc='upper left', framealpha=0.9, edgecolor='#e2e5ea')
 
+    # YTD box — centrado en la parte superior derecha, no abajo
     if ytd is not None:
-        ax.text(0.98, 0.04, f"PROMEDIO YTD    {ytd:.2f}", transform=ax.transAxes,
-                fontsize=10, fontweight='bold', color=DARK, ha='right', va='bottom',
+        ax.text(0.98, 0.92, f"PROMEDIO YTD    {ytd:.2f}", transform=ax.transAxes,
+                fontsize=10, fontweight='bold', color=DARK, ha='right', va='top',
                 bbox=dict(boxstyle='round,pad=0.5', facecolor='white', edgecolor=DARK, linewidth=1.5))
 
     plt.tight_layout()
@@ -67,7 +69,6 @@ def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
 
 
 def fmt(val):
-    """Format a number as XX,XX or 0,00 if zero/None."""
     if val is None or val == 0:
         return '0,00'
     return f"{val:.2f}".replace('.', ',')
@@ -93,10 +94,14 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
             for ev in m["eventos"]:
                 fecha = ev["fecha"]
                 fecha_str = fecha.strftime("%d/%m/%Y") if hasattr(fecha, "strftime") else str(fecha)[:10]
+                desc = ev['descripcion_incidente']
+                es_sin_incidente = 'sin incidente' in desc.lower()
+                fecha_display = '' if es_sin_incidente else fecha_str
+
                 rows_html += f"""
                 <tr class="event-row">
-                  <td class="fecha-col">{fecha_str}</td>
-                  <td class="desc-col">{ev['descripcion_incidente']}</td>
+                  <td class="fecha-col">{fecha_display}</td>
+                  <td class="desc-col">{desc}</td>
                   <td>{ev['total_hs_mes']}</td>
                   <td class="caida-col">{fmt(ev['caida_flex_d'])}</td>
                   <td class="caida-col">{fmt(ev['caida_mop_dlp'])}</td>
@@ -104,12 +109,12 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
                   <td class="perf-col">{fmt(ev['baja_perf_flex_d'])}</td>
                   <td class="perf-col">{fmt(ev['baja_perf_mop_dlp'])}</td>
                   <td class="perf-col">{fmt(ev['baja_perf_cupones'])}</td>
-                  <td class="uptime-col">{fmt(ev['caida_flex_d'])}</td>
-                  <td class="uptime-col">{fmt(ev['caida_mop_dlp'])}</td>
-                  <td class="uptime-col">{fmt(ev['caida_cupones'])}</td>
-                  <td class="perform-col">{fmt(ev['baja_perf_flex_d'])}</td>
-                  <td class="perform-col">{fmt(ev['baja_perf_mop_dlp'])}</td>
-                  <td class="perform-col">{fmt(ev['baja_perf_cupones'])}</td>
+                  <td class="uptime-col">{fmt(m['uptime_flex'])}</td>
+                  <td class="uptime-col">{fmt(m['uptime_mop'])}</td>
+                  <td class="uptime-col">{fmt(m['uptime_cup'])}</td>
+                  <td class="perform-col">{fmt(m['perform_flex'])}</td>
+                  <td class="perform-col">{fmt(m['perform_mop'])}</td>
+                  <td class="perform-col">{fmt(m['perform_cup'])}</td>
                   <td class="promedio-col"></td>
                 </tr>"""
 
@@ -170,8 +175,6 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     .chart-img{{width:100%;border-radius:6px}}
     .table-scroll{{overflow-x:auto}}
     table{{width:100%;border-collapse:collapse;font-size:11px}}
-
-    /* GROUP HEADERS */
     .col-group th{{padding:7px 8px;text-align:center;font-weight:700;font-size:11px;color:white}}
     .th-fecha{{background:#FFC000;color:#2d2d2d}}
     .th-desc{{background:#FFC000;color:#2d2d2d}}
@@ -181,8 +184,6 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     .th-uptime{{background:#C00000}}
     .th-perform{{background:#FF8C00}}
     .th-promedio{{background:#375623}}
-
-    /* SUB HEADERS — same color as group */
     .col-sub th{{padding:6px 8px;text-align:center;font-weight:600;font-size:10px;border-bottom:2px solid rgba(255,255,255,0.3)}}
     .col-sub th.left{{text-align:left}}
     .sub-fecha{{background:#FFD966;color:#2d2d2d}}
@@ -193,18 +194,14 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     .sub-uptime{{background:#a00000;color:white}}
     .sub-perform{{background:#cc6600;color:white}}
     .sub-promedio{{background:#2a4a20;color:white}}
-
-    /* DATA CELLS */
     tbody td{{padding:6px 8px;border-bottom:1px solid #e2e5ea;text-align:center;vertical-align:middle}}
     .fecha-col{{white-space:nowrap;font-size:11px;color:#4a4a4a;width:80px;text-align:left}}
-    .desc-col{{text-align:left;font-size:11px;color:#4a4a4a;min-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}}
+    .desc-col{{text-align:left;font-size:11px;color:#4a4a4a;min-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px}}
     .caida-col{{background:#FFF0F0}}
     .perf-col{{background:#FFF8F0}}
     .uptime-col{{background:#FFF0F0}}
     .perform-col{{background:#FFF8F0}}
     .promedio-col{{background:#F0FFF0;font-weight:700;color:#375623}}
-
-    /* MONTH TOTAL ROW */
     tr.month-header td{{background:#FFC000;color:#2d2d2d;font-weight:700;font-size:11px;padding:7px 8px}}
     tr.month-header .desc-col{{text-align:left;text-transform:uppercase}}
     tr.month-header .caida-col{{background:#FFD966}}
@@ -212,16 +209,12 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     tr.month-header .uptime-col{{background:#FFD966}}
     tr.month-header .perform-col{{background:#FFD966}}
     tr.month-header .promedio-col{{background:#E8B400;font-weight:700}}
-
-    /* EVENT ROW */
     tr.event-row td{{background:white}}
     tr.event-row .caida-col{{background:#FFF0F0}}
     tr.event-row .perf-col{{background:#FFF8F0}}
     tr.event-row .uptime-col{{background:#FFF0F0}}
     tr.event-row .perform-col{{background:#FFF8F0}}
     tr.event-row .promedio-col{{background:#F0FFF0}}
-
-    /* QUARTER ROW */
     tr.quarter-row td{{background:#2d2d2d;color:white;font-weight:700;font-size:11px;padding:7px 8px;text-align:center}}
     tr.quarter-row td:first-child{{text-align:left}}
     tr.quarter-row .caida-col{{background:#1a0000}}
@@ -229,8 +222,6 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     tr.quarter-row .uptime-col{{background:#1a0000}}
     tr.quarter-row .perform-col{{background:#1a0a00}}
     tr.quarter-row .promedio-col{{background:#1a4a1a;color:#90EE90}}
-
-    /* COMM TABLE */
     .comm-table{{width:100%;border-collapse:collapse;font-size:12px}}
     .comm-table th{{background:#2d2d2d;color:white;padding:8px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase}}
     .comm-table td{{padding:8px 12px;border-bottom:1px solid #e2e5ea;vertical-align:top}}
@@ -257,7 +248,6 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       <div class="ytd-label">Promedio acumulado</div>
     </div>
   </div>
-
   <div class="section section-first">
     <div class="section-title">Contexto</div>
     <div class="context-grid">
@@ -266,12 +256,10 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       <div class="context-card"><h4>Tipos de Evento</h4><p><span class="tag red">Caída</span> Solución offline.</p><p style="margin-top:6px"><span class="tag">Baja de Performance</span> Opera con dificultades.</p></div>
     </div>
   </div>
-
   <div class="section">
     <div class="section-title">Promedio Uptime Mensual</div>
     <img src="data:image/png;base64,{chart_b64}" class="chart-img" alt="Gráfico Uptime Mensual">
   </div>
-
   <div class="section">
     <div class="section-title">Detalle de Eventos y Estadísticas</div>
     <div class="table-scroll">
@@ -302,7 +290,6 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       </table>
     </div>
   </div>
-
   <div class="section">
     <div class="section-title">Esquema de Comunicación</div>
     <table class="comm-table">
@@ -319,7 +306,6 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       </tbody>
     </table>
   </div>
-
   <div class="footer">Generado automáticamente · {mes_nombre} {anio} · Ecosistema Digital · #TodosSomosDigitales</div>
 </div>
 </body>

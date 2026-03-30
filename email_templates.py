@@ -25,7 +25,7 @@ def build_email_body(mes_nombre: str, anio: int, chart_b64: str = None, uptime_m
 </head>
 <body>
   <div class="container">
-    <div class="header-bar">Uptime · Ecosistema Digital · {mes_nombre} {anio}{uptime_str}</div>
+    <div class="header-bar">{mes_nombre} {anio}{uptime_str}</div>
     <div class="body-box">
       <p>Buenos días Equipo!</p>
       <br>
