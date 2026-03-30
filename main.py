@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
+import requests
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from google.oauth2.credentials import Credentials
@@ -20,11 +21,13 @@ app = FastAPI(title="Uptime Reporter")
 
 API_KEY = os.environ.get("API_KEY", "changeme")
 GMAIL_USER = os.environ.get("GMAIL_USER")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_REFRESH_TOKEN = os.environ.get("GOOGLE_REFRESH_TOKEN")
 DRIVE_FILE_ID = os.environ.get("DRIVE_FILE_ID")
 RECIPIENTS = os.environ.get("RECIPIENTS", "").split(",")
+
 
 def get_google_creds():
     creds = Credentials(
@@ -37,6 +40,7 @@ def get_google_creds():
     creds.refresh(Request())
     return creds
 
+
 class TriggerRequest(BaseModel):
     mes_nombre: str = None
     anio: int = None
@@ -46,36 +50,6 @@ class TriggerRequest(BaseModel):
 def health():
     return {"status": "ok"}
 
-@app.get("/test-gmail")
-def test_gmail():
-    try:
-        creds = get_google_creds()
-        return {"status": "ok", "token": creds.token[:20] + "..."}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
-
-@app.get("/test-send")
-def test_send():
-    try:
-        creds = get_google_creds()
-        service = build("gmail", "v1", credentials=creds)
-        profile = service.users().getProfile(userId="me").execute()
-        return {"status": "ok", "email": profile.get("emailAddress"), "gmail_user_env": GMAIL_USER}
-    except Exception as e:
-        return {"status": "error", "detail": str(e), "gmail_user_env": GMAIL_USER}
-
-@app.get("/test-scopes")
-def test_scopes():
-    try:
-        creds = get_google_creds()
-        import urllib.request
-        url = f"https://oauth2.googleapis.com/tokeninfo?access_token={creds.token}"
-        with urllib.request.urlopen(url) as r:
-            import json
-            data = json.loads(r.read())
-        return {"scopes": data.get("scope"), "email": data.get("email")}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
 
 @app.post("/send-report")
 def send_report(
@@ -102,7 +76,7 @@ def send_report(
     email_body_html = build_email_body(mes_nombre, anio)
 
     try:
-        send_email_gmail_api(
+        send_email_resend(
             subject=f"Reporte Uptime Ecosistema Digital - {mes_nombre} {anio}",
             body_html=email_body_html,
             attachment_html=html_report,
@@ -186,22 +160,30 @@ def parse_uptime_excel(excel_bytes: bytes) -> dict:
     }
 
 
-def send_email_gmail_api(subject, body_html, attachment_html, attachment_name, recipients):
-    creds = get_google_creds()
-    service = build("gmail", "v1", credentials=creds)
+def send_email_resend(subject, body_html, attachment_html, attachment_name, recipients):
+    attachment_b64 = base64.b64encode(attachment_html.encode("utf-8")).decode("utf-8")
 
-    msg = MIMEMultipart("mixed")
-    msg["Subject"] = subject
-    msg["From"] = GMAIL_USER
-    msg["To"] = ", ".join(recipients)
+    payload = {
+        "from": f"Uptime Reporter <onboarding@resend.dev>",
+        "to": recipients,
+        "subject": subject,
+        "html": body_html,
+        "attachments": [
+            {
+                "filename": attachment_name,
+                "content": attachment_b64,
+            }
+        ]
+    }
 
-    msg.attach(MIMEText(body_html, "html"))
+    response = requests.post(
+        "https://api.resend.com/emails",
+        headers={
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json=payload
+    )
 
-    part = MIMEBase("text", "html")
-    part.set_payload(attachment_html.encode("utf-8"))
-    encoders.encode_base64(part)
-    part.add_header("Content-Disposition", f'attachment; filename="{attachment_name}"')
-    msg.attach(part)
-
-    raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
-    service.users().messages().send(userId="me", body={"raw": raw}).execute()
+    if response.status_code not in (200, 201):
+        raise Exception(f"Resend error {response.status_code}: {response.text}")
