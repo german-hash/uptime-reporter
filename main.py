@@ -59,6 +59,17 @@ def test_gmail():
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
+@app.get("/test-send")
+def test_send():
+    try:
+        creds = get_google_creds()
+        creds.refresh(Request())
+        service = build("gmail", "v1", credentials=creds)
+        profile = service.users().getProfile(userId="me").execute()
+        return {"status": "ok", "email": profile.get("emailAddress")}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
 @app.post("/send-report")
 def send_report(
     body: TriggerRequest = TriggerRequest(),
