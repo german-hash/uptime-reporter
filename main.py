@@ -65,6 +65,19 @@ def test_send():
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
+@app.get("/test-scopes")
+def test_scopes():
+    try:
+        creds = get_google_creds()
+        import urllib.request
+        url = f"https://oauth2.googleapis.com/tokeninfo?access_token={creds.token}"
+        with urllib.request.urlopen(url) as r:
+            import json
+            data = json.loads(r.read())
+        return {"scopes": data.get("scope"), "email": data.get("email")}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
 @app.post("/send-report")
 def send_report(
     body: TriggerRequest = TriggerRequest(),
