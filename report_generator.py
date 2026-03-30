@@ -296,13 +296,13 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       <thead><tr><th>Evento</th><th>Scope</th><th>Momento</th><th>Audiencia</th><th>Responsable</th><th>Para qué</th></tr></thead>
       <tbody>
         <tr class="caida"><td rowspan="4"><span class="event-badge caida">Caída</span></td><td rowspan="4">Ecosistema completo o componentes únicos</td><td>En la detección</td><td>Equipos de IT</td><td>PO / Quien detecta</td><td>Dimensionar impacto y workarounds</td></tr>
-        <tr class="caida"><td>A los 10'</td><td>Liderazgo CTO / Call Center</td><td>Germán / Mónica / Diego</td><td>Puesta en conocimiento e impactos</td></tr>
+        <tr class="caida"><td>A los 10'</td><td>Liderazgo CTO / Call Center</td><td>Germán / Edgardo / Diego</td><td>Puesta en conocimiento e impactos</td></tr>
         <tr class="caida"><td>A los 30'</td><td>MD's IT Div / IT País</td><td>IT Div / IT País</td><td>Acciones particulares</td></tr>
         <tr class="caida"><td>A los 60'</td><td>Management Board</td><td>—</td><td>Puesta en conocimiento</td></tr>
         <tr class="degradacion"><td rowspan="3"><span class="event-badge degradacion">Degradación</span></td><td rowspan="3">Componentes</td><td>En la detección</td><td>Equipos de IT</td><td>PO / Quien detecta</td><td>Dimensionar impacto y workarounds</td></tr>
-        <tr class="degradacion"><td>A los 15'</td><td>Liderazgo CTO / Call Center</td><td>Germán / Mónica / Diego</td><td>Comentar componente e impacto</td></tr>
+        <tr class="degradacion"><td>A los 15'</td><td>Liderazgo CTO / Call Center</td><td>Germán / Edgardo / Diego</td><td>Comentar componente e impacto</td></tr>
         <tr class="degradacion"><td>A los 60'</td><td>MD's IT Div / IT País</td><td>IT Div / IT País</td><td>Acciones particulares</td></tr>
-        <tr class="resolucion"><td><span class="event-badge resolucion">Resolución</span></td><td>Componente afectado</td><td>Al confirmar resolución</td><td>IT / Advance / Mercado</td><td>Germán / Mónica / Diego</td><td>Informar tiempo afectado y GO del servicio</td></tr>
+        <tr class="resolucion"><td><span class="event-badge resolucion">Resolución</span></td><td>Componente afectado</td><td>Al confirmar resolución</td><td>IT / Advance / Mercado</td><td>Germán / Edgardo / Diego</td><td>Informar tiempo afectado y GO del servicio</td></tr>
       </tbody>
     </table>
   </div>
