@@ -1,4 +1,4 @@
-def build_email_body(mes_nombre: str, anio: int, chart_b64: str = None) -> str:
+def build_email_body(mes_nombre: str, anio: int, chart_b64: str = None, uptime_mes: float = None) -> str:
     chart_html = ""
     if chart_b64:
         chart_html = f"""
@@ -8,6 +8,8 @@ def build_email_body(mes_nombre: str, anio: int, chart_b64: str = None) -> str:
            style="width:100%; max-width:600px; display:block; border-radius:6px;">
     </div>
 """
+
+    uptime_str = f" · Uptime {uptime_mes:.2f}%" if uptime_mes is not None else ""
 
     return f"""<!DOCTYPE html>
 <html>
@@ -23,7 +25,7 @@ def build_email_body(mes_nombre: str, anio: int, chart_b64: str = None) -> str:
 </head>
 <body>
   <div class="container">
-    <div class="header-bar">Uptime · Ecosistema Digital · {mes_nombre} {anio}</div>
+    <div class="header-bar">Uptime · Ecosistema Digital · {mes_nombre} {anio}{uptime_str}</div>
     <div class="body-box">
       <p>Buenos días Equipo!</p>
       <br>
