@@ -50,6 +50,14 @@ class TriggerRequest(BaseModel):
 def health():
     return {"status": "ok"}
 
+@app.get("/test-gmail")
+def test_gmail():
+    try:
+        creds = get_google_creds()
+        creds.refresh(Request())
+        return {"status": "ok", "token": creds.token[:20] + "..."}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
 
 @app.post("/send-report")
 def send_report(
