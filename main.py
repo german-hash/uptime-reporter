@@ -61,9 +61,9 @@ def test_send():
         creds = get_google_creds()
         service = build("gmail", "v1", credentials=creds)
         profile = service.users().getProfile(userId="me").execute()
-        return {"status": "ok", "email": profile.get("emailAddress")}
+        return {"status": "ok", "email": profile.get("emailAddress"), "gmail_user_env": GMAIL_USER}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        return {"status": "error", "detail": str(e), "gmail_user_env": GMAIL_USER}
 
 @app.get("/test-scopes")
 def test_scopes():
