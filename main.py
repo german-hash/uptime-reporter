@@ -28,18 +28,15 @@ RECIPIENTS = os.environ.get("RECIPIENTS", "").split(",")
 
 
 def get_google_creds():
-    return Credentials(
+    creds = Credentials(
         token=None,
         refresh_token=GOOGLE_REFRESH_TOKEN,
         token_uri="https://oauth2.googleapis.com/token",
         client_id=GOOGLE_CLIENT_ID,
         client_secret=GOOGLE_CLIENT_SECRET,
-        scopes=[
-            "https://www.googleapis.com/auth/drive.readonly",
-            "https://www.googleapis.com/auth/gmail.send"
-        ]
     )
-
+    creds.refresh(Request())
+    return creds
 
 class TriggerRequest(BaseModel):
     mes_nombre: str = None
@@ -54,7 +51,6 @@ def health():
 def test_gmail():
     try:
         creds = get_google_creds()
-        creds.refresh(Request())
         return {"status": "ok", "token": creds.token[:20] + "..."}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
@@ -63,7 +59,6 @@ def test_gmail():
 def test_send():
     try:
         creds = get_google_creds()
-        creds.refresh(Request())
         service = build("gmail", "v1", credentials=creds)
         profile = service.users().getProfile(userId="me").execute()
         return {"status": "ok", "email": profile.get("emailAddress")}
@@ -110,7 +105,6 @@ def send_report(
 
 def download_from_drive(file_id: str) -> bytes:
     creds = get_google_creds()
-    creds.refresh(Request())
     service = build("drive", "v3", credentials=creds)
     request = service.files().get_media(fileId=file_id)
     buf = io.BytesIO()
@@ -182,7 +176,6 @@ def parse_uptime_excel(excel_bytes: bytes) -> dict:
 
 def send_email_gmail_api(subject, body_html, attachment_html, attachment_name, recipients):
     creds = get_google_creds()
-    creds.refresh(Request())
     service = build("gmail", "v1", credentials=creds)
 
     msg = MIMEMultipart("mixed")
