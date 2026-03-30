@@ -26,7 +26,6 @@ GOOGLE_REFRESH_TOKEN = os.environ.get("GOOGLE_REFRESH_TOKEN")
 DRIVE_FILE_ID = os.environ.get("DRIVE_FILE_ID")
 RECIPIENTS = os.environ.get("RECIPIENTS", "").split(",")
 
-
 def get_google_creds():
     creds = Credentials(
         token=None,
