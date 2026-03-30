@@ -1,6 +1,6 @@
 import os
 import io
-import smtplib
+import base64
 import pandas as pd
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -20,12 +20,25 @@ app = FastAPI(title="Uptime Reporter")
 
 API_KEY = os.environ.get("API_KEY", "changeme")
 GMAIL_USER = os.environ.get("GMAIL_USER")
-GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 GOOGLE_REFRESH_TOKEN = os.environ.get("GOOGLE_REFRESH_TOKEN")
 DRIVE_FILE_ID = os.environ.get("DRIVE_FILE_ID")
 RECIPIENTS = os.environ.get("RECIPIENTS", "").split(",")
+
+
+def get_google_creds():
+    return Credentials(
+        token=None,
+        refresh_token=GOOGLE_REFRESH_TOKEN,
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        scopes=[
+            "https://www.googleapis.com/auth/drive.readonly",
+            "https://www.googleapis.com/auth/gmail.send"
+        ]
+    )
 
 
 class TriggerRequest(BaseModel):
@@ -63,7 +76,7 @@ def send_report(
     email_body_html = build_email_body(mes_nombre, anio)
 
     try:
-        send_email(
+        send_email_gmail_api(
             subject=f"Reporte Uptime Ecosistema Digital - {mes_nombre} {anio}",
             body_html=email_body_html,
             attachment_html=html_report,
@@ -77,13 +90,7 @@ def send_report(
 
 
 def download_from_drive(file_id: str) -> bytes:
-    creds = Credentials(
-        token=None,
-        refresh_token=GOOGLE_REFRESH_TOKEN,
-        token_uri="https://oauth2.googleapis.com/token",
-        client_id=GOOGLE_CLIENT_ID,
-        client_secret=GOOGLE_CLIENT_SECRET,
-    )
+    creds = get_google_creds()
     creds.refresh(Request())
     service = build("drive", "v3", credentials=creds)
     request = service.files().get_media(fileId=file_id)
@@ -154,7 +161,11 @@ def parse_uptime_excel(excel_bytes: bytes) -> dict:
     }
 
 
-def send_email(subject, body_html, attachment_html, attachment_name, recipients):
+def send_email_gmail_api(subject, body_html, attachment_html, attachment_name, recipients):
+    creds = get_google_creds()
+    creds.refresh(Request())
+    service = build("gmail", "v1", credentials=creds)
+
     msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
     msg["From"] = GMAIL_USER
@@ -168,6 +179,5 @@ def send_email(subject, body_html, attachment_html, attachment_name, recipients)
     part.add_header("Content-Disposition", f'attachment; filename="{attachment_name}"')
     msg.attach(part)
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
-        server.sendmail(GMAIL_USER, recipients, msg.as_string())
+    raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+    service.users().messages().send(userId="me", body={"raw": raw}).execute()
