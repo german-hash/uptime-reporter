@@ -14,7 +14,7 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-from report_generator import generate_report_html
+from report_generator import generate_report_html, generate_chart_base64
 from email_templates import build_email_body
 
 app = FastAPI(title="Uptime Reporter")
@@ -73,7 +73,8 @@ def send_report(
     anio = body.anio or datetime.now().year
 
     html_report = generate_report_html(data, mes_nombre, anio)
-    email_body_html = build_email_body(mes_nombre, anio)
+    chart_b64 = generate_chart_base64(data["meses"])
+    email_body_html = build_email_body(mes_nombre, anio, chart_b64)
 
     try:
         send_email_resend(

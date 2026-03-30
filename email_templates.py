@@ -1,4 +1,14 @@
-def build_email_body(mes_nombre: str, anio: int) -> str:
+def build_email_body(mes_nombre: str, anio: int, chart_b64: str = None) -> str:
+    chart_html = ""
+    if chart_b64:
+        chart_html = f"""
+    <div style="margin: 24px 0;">
+      <img src="data:image/png;base64,{chart_b64}" 
+           alt="Promedio Uptime Mensual" 
+           style="width:100%; max-width:600px; display:block; border-radius:8px;">
+    </div>
+"""
+ 
     return f"""
 <!DOCTYPE html>
 <html>
@@ -13,12 +23,13 @@ def build_email_body(mes_nombre: str, anio: int) -> str:
 <body>
   <div class="container">
     <p>Buenos días Equipo!</p>
-
+ 
     <p>Les dejo el reporte de uptime de nuestro ecosistema digital al mes de <strong>{mes_nombre} {anio}</strong> cerrado.</p>
-
-    <p>En el adjunto, encontrarán las explicaciones para el entendimiento de lo que se está midiendo,
-    también un detalle de los eventos ocurridos.</p>
-
+ 
+    <p>En el adjunto, encontrarán las explicaciones para el entendimiento de lo que se está midiendo, también un detalle de los eventos ocurridos.</p>
+ 
+    {chart_html}
+ 
     <div class="footer">
       <p>Quedamos a disposición para cualquier consulta o comentario.<br>
       Muchas Gracias<br>
