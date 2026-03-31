@@ -18,8 +18,10 @@ def build_email_body(mes_nombre: str, anio: int, chart_b64: str = None, uptime_m
   <style>
     body {{ font-family: Arial, sans-serif; font-size: 14px; color: #2d2d2d; line-height: 1.7; }}
     .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-    .body-box {{ border: 1px solid #e2e5ea; border-top: none; border-radius: 6px; padding: 20px; background: #ffffff; }}
-    .footer {{ margin-top: 24px; color: #888; font-size: 13px; border-top: 1px solid #e2e5ea; padding-top: 16px; }}
+    .body-box {{ border: 1px solid #e2e5ea; border-radius: 6px; padding: 20px; background: #ffffff; }}
+    p {{ font-family: Arial, sans-serif; font-size: 14px; color: #2d2d2d; line-height: 1.7; margin: 0 0 16px 0; }}
+    .footer {{ margin-top: 24px; border-top: 1px solid #e2e5ea; padding-top: 16px; }}
+    .footer p {{ font-family: Arial, sans-serif; font-size: 14px; color: #2d2d2d; line-height: 1.7; margin: 0 0 12px 0; }}
   </style>
 </head>
 <body>
@@ -31,10 +33,10 @@ def build_email_body(mes_nombre: str, anio: int, chart_b64: str = None, uptime_m
 
       {chart_html}
 
-      <div class="footer" style="font-family: Arial, sans-serif;">
-        Quedamos a disposición para cualquier consulta o comentario.<br>
-        Muchas Gracias · Fuerte abrazo.
-	Germán Guerriero / Pablo Eissler /Carla Lanzillotta/ Diego Marin
+      <div class="footer">
+        <p>Quedamos a disposición para cualquier consulta o comentario.</p>
+        <p>Muchas Gracias · Fuerte abrazo.</p>
+        <p>Germán Guerriero / Pablo Eissler / Carla Lanzillotta / Diego Marin</p>
       </div>
     </div>
   </div>
