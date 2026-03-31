@@ -15,7 +15,6 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from report_generator import generate_report_html, generate_chart_base64
-from email_chart import generate_email_chart_base64
 from email_templates import build_email_body
 
 app = FastAPI(title="Uptime Reporter")
@@ -74,7 +73,7 @@ def send_report(
     anio = body.anio or datetime.now().year
 
     html_report = generate_report_html(data, mes_nombre, anio)
-    chart_b64 = generate_email_chart_base64(data["meses"], ytd=data["ytd"])
+    chart_b64 = generate_chart_base64(data["meses"], ytd=data["ytd"])
     ultimo_mes_num = max(data["meses"].keys()) if data["meses"] else None
     uptime_mes = data["meses"][ultimo_mes_num]["promedio"] if ultimo_mes_num else None
     email_body_html = build_email_body(mes_nombre, anio, chart_b64, uptime_mes)

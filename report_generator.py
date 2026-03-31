@@ -254,9 +254,9 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
   </div>
   <div class="section section-first">
     <div class="section-title" onclick="toggleContext()" style="cursor:pointer;user-select:none;">
-      Contexto <span id="ctx-arrow" style="font-size:12px;margin-left:6px;">▼</span>
+      Contexto <span id="ctx-arrow" style="font-size:12px;margin-left:6px;">▶</span>
     </div>
-    <div id="context-content" class="context-layout">
+    <div id="context-content" class="context-layout" style="display:none">
       <div class="context-text">
         <p>Llamamos <strong style="color:#C00000">ECOSISTEMA DIGITAL</strong> a todas las soluciones e integraciones que conforman nuestra plataforma digital, que en una primera visión, pueden concentrarse en 3 grandes soluciones, con sub componentes en cada caso:</p>
         <ul style="margin:10px 0 10px 20px;">
