@@ -30,7 +30,7 @@ def generate_email_chart_base64(meses_data: dict, ytd: float = None) -> str:
     fig.patch.set_facecolor('#ffffff')
 
     # Title area above the chart
-    fig.text(0.08, 0.95, 'PROMEDIO UPTIME MENSUAL', fontsize=9, fontweight='bold',
+    fig.text(0.08, 0.95, 'PROMEDIO UPTIME MENSUAL', fontsize=12, fontweight='bold',
              color=DARK, va='top', ha='left', transform=fig.transFigure)
 
     # Gold underline for title

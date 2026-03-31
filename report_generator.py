@@ -58,7 +58,7 @@ def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
     if ytd is not None:
         ax.text(0.98, 0.92, f"PROMEDIO YTD    {ytd:.2f}", transform=ax.transAxes,
                 fontsize=10, fontweight='bold', color=DARK, ha='right', va='top',
-                bbox=dict(boxstyle='round,pad=0.5', facecolor='white', edgecolor=DARK, linewidth=1.5))
+                bbox=dict(boxstyle='round,pad=0.5', facecolor=GOLD, edgecolor=DARK, linewidth=2))
 
     plt.tight_layout()
     buf = io.BytesIO()
@@ -158,11 +158,11 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     *{{box-sizing:border-box;margin:0;padding:0}}
     body{{font-family:'DM Sans',Arial,sans-serif;background:#f5f5f5;color:#2d2d2d;font-size:14px;line-height:1.5}}
     .page{{max-width:1200px;margin:0 auto;padding:32px 24px}}
-    .header{{background:#2d2d2d;color:white;border-radius:10px 10px 0 0;padding:24px 28px;display:flex;justify-content:space-between;align-items:center}}
-    .header h1{{font-size:22px;font-weight:700}}
-    .header .subtitle{{font-size:13px;color:#FFC000;margin-top:4px;font-weight:500}}
-    .ytd-badge{{background:#FFC000;color:#2d2d2d;font-size:14px;font-weight:700;padding:8px 18px;border-radius:20px}}
-    .ytd-label{{font-size:11px;color:#aaa;margin-top:4px;text-align:right;text-transform:uppercase}}
+    .header{{background:#FFC000;color:#2d2d2d;border-radius:10px 10px 0 0;padding:24px 28px;display:flex;justify-content:space-between;align-items:center}}
+    .header h1{{font-size:22px;font-weight:700;color:#2d2d2d}}
+    .header .subtitle{{font-size:13px;color:#2d2d2d;margin-top:4px;font-weight:600;opacity:0.7}}
+    .ytd-badge{{background:#2d2d2d;color:#FFC000;font-size:14px;font-weight:700;padding:8px 18px;border-radius:20px}}
+    .ytd-label{{font-size:11px;color:#2d2d2d;margin-top:4px;text-align:right;text-transform:uppercase;opacity:0.6}}
     .section{{background:white;border:1px solid #e2e5ea;padding:24px 28px;margin-bottom:20px;border-radius:10px}}
     .section-first{{border-radius:0;border-top:none}}
     .section-title{{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#4a4a4a;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #FFC000;display:inline-block}}
@@ -188,7 +188,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     .th-uptime{{background:#C00000}}
     .th-perform{{background:#FF8C00}}
     .th-promedio{{background:#375623}}
-    .col-sub th{{padding:6px 8px;text-align:center;font-weight:600;font-size:10px;border-bottom:2px solid rgba(255,255,255,0.3)}}
+    .col-sub th{{padding:6px 8px;text-align:center;font-weight:600;font-size:10px;border-bottom:2px solid rgba(255,255,255,0.3);white-space:nowrap}}
     .col-sub th.left{{text-align:left}}
     .sub-fecha{{background:#FFD966;color:#2d2d2d}}
     .sub-desc{{background:#FFD966;color:#2d2d2d}}
@@ -245,7 +245,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     <div>
       <div class="subtitle">#TodosSomosDigitales</div>
       <h1>Uptime · Ecosistema Digital</h1>
-      <div style="font-size:13px;color:#ccc;margin-top:4px">{mes_nombre} {anio} — Reporte Mensual</div>
+      <div style="font-size:13px;color:#2d2d2d;margin-top:4px;opacity:0.7">{mes_nombre} {anio} — Reporte Mensual</div>
     </div>
     <div style="text-align:right">
       <div class="ytd-badge">YTD {ytd}%</div>
@@ -253,8 +253,10 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     </div>
   </div>
   <div class="section section-first">
-    <div class="section-title">Contexto</div>
-    <div class="context-layout">
+    <div class="section-title" onclick="toggleContext()" style="cursor:pointer;user-select:none;">
+      Contexto <span id="ctx-arrow" style="font-size:12px;margin-left:6px;">▼</span>
+    </div>
+    <div id="context-content" class="context-layout">
       <div class="context-text">
         <p>Llamamos <strong style="color:#C00000">ECOSISTEMA DIGITAL</strong> a todas las soluciones e integraciones que conforman nuestra plataforma digital, que en una primera visión, pueden concentrarse en 3 grandes soluciones, con sub componentes en cada caso:</p>
         <ul style="margin:10px 0 10px 20px;">
@@ -278,6 +280,19 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       </div>
     </div>
   </div>
+  <script>
+    function toggleContext() {{
+      var el = document.getElementById('context-content');
+      var arrow = document.getElementById('ctx-arrow');
+      if (el.style.display === 'none') {{
+        el.style.display = '';
+        arrow.textContent = '▼';
+      }} else {{
+        el.style.display = 'none';
+        arrow.textContent = '▶';
+      }}
+    }}
+  </script>
   <div class="section">
     <div class="section-title">Promedio Uptime Mensual</div>
     <img src="data:image/png;base64,{chart_b64}" class="chart-img" alt="Gráfico Uptime Mensual">
