@@ -328,7 +328,10 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     </div>
   </div>
   <div class="section">
-    <div class="section-title">Esquema de Comunicación</div>
+    <div class="section-title" onclick="toggleComm()" style="cursor:pointer;user-select:none;">
+      Esquema de Comunicación <span id="comm-arrow" style="font-size:12px;margin-left:6px;">▶</span>
+    </div>
+    <div id="comm-content" style="display:none">
     <table class="comm-table">
       <thead><tr><th>Evento</th><th>Scope</th><th>Momento</th><th>Audiencia</th><th>Responsable</th><th>Para qué</th></tr></thead>
       <tbody>
@@ -342,7 +345,21 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
         <tr class="resolucion"><td><span class="event-badge resolucion">Resolución</span></td><td>Componente afectado</td><td>Al confirmar resolución</td><td>IT / Advance / Mercado</td><td>Germán / Mónica / Diego</td><td>Informar tiempo afectado y GO del servicio</td></tr>
       </tbody>
     </table>
+    </div>
   </div>
+  <script>
+    function toggleComm() {{
+      var el = document.getElementById('comm-content');
+      var arrow = document.getElementById('comm-arrow');
+      if (el.style.display === 'none') {{
+        el.style.display = '';
+        arrow.textContent = '▼';
+      }} else {{
+        el.style.display = 'none';
+        arrow.textContent = '▶';
+      }}
+    }}
+  </script>
   <div class="footer">Generado automáticamente · {mes_nombre} {anio} · Ecosistema Digital · #TodosSomosDigitales</div>
 </div>
 </body>
