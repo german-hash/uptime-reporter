@@ -28,15 +28,7 @@ def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
     fig = plt.figure(figsize=(10, 5.2))
     fig.patch.set_facecolor('#ffffff')
 
-    # External title with gold underline
-    fig.text(0.07, 0.96, 'PROMEDIO UPTIME MENSUAL', fontsize=10, fontweight='bold',
-             color=DARK, va='top', ha='left')
-    from matplotlib.lines import Line2D
-    line = Line2D([0.07, 0.28], [0.915, 0.915], transform=fig.transFigure,
-                  color=GOLD, linewidth=2.5)
-    fig.add_artist(line)
-
-    ax = fig.add_axes([0.07, 0.08, 0.89, 0.80])
+    ax = fig.add_axes([0.07, 0.08, 0.89, 0.95])
     ax.set_facecolor('#ffffff')
 
     x = np.arange(len(MESES_ORDER))
