@@ -28,7 +28,7 @@ def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
     fig = plt.figure(figsize=(10, 5.2))
     fig.patch.set_facecolor('#ffffff')
 
-    ax = fig.add_axes([0.07, 0.08, 0.89, 0.95])
+    ax = fig.add_axes([0.07, 0.08, 0.89, 0.82])
     ax.set_facecolor('#ffffff')
 
     x = np.arange(len(MESES_ORDER))
