@@ -87,7 +87,7 @@ def fmt(val):
 def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     meses_data = data["meses"]
     ytd = data["ytd"]
-    chart_b64 = generate_chart_base64(meses_data, ytd=ytd)
+    chart_b64 = generate_chart_base64(meses_data, ytd=ytd, show_title=True)
 
     trimestres = {"Q1": [1,2,3], "Q2": [4,5,6], "Q3": [7,8,9], "Q4": [10,11,12]}
 
@@ -304,8 +304,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
     }}
   </script>
   <div class="section">
-    <div class="section-title">Promedio Uptime Mensual</div>
-    <img src="data:image/png;base64,{chart_b64}" class="chart-img" alt="Gráfico Uptime Mensual">
+    <img src="data:image/png;base64,{chart_b64}" class="chart-img" alt="Gráfico Uptime Mensual" style="margin-top:8px">
   </div>
   <div class="section">
     <div class="section-title">Detalle de Eventos y Estadísticas</div>
