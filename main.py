@@ -73,7 +73,7 @@ def send_report(
     anio = body.anio or datetime.now().year
 
     html_report = generate_report_html(data, mes_nombre, anio)
-    chart_b64 = generate_chart_base64(data["meses"], ytd=data["ytd"])
+    chart_b64 = generate_chart_base64(data["meses"], ytd=data["ytd"], show_title=True)
     ultimo_mes_num = max(data["meses"].keys()) if data["meses"] else None
     uptime_mes = data["meses"][ultimo_mes_num]["promedio"] if ultimo_mes_num else None
     email_body_html = build_email_body(mes_nombre, anio, chart_b64, uptime_mes)

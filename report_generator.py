@@ -17,7 +17,7 @@ RED = "#C00000"
 GREEN = "#375623"
 
 
-def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
+def generate_chart_base64(meses_data: dict, ytd: float = None, show_title: bool = False) -> str:
     values = []
     for i in range(1, 13):
         if i in meses_data:
@@ -28,7 +28,16 @@ def generate_chart_base64(meses_data: dict, ytd: float = None) -> str:
     fig = plt.figure(figsize=(10, 5.2))
     fig.patch.set_facecolor('#ffffff')
 
-    ax = fig.add_axes([0.07, 0.08, 0.89, 0.82])
+    if show_title:
+        fig.text(0.07, 0.96, 'PROMEDIO UPTIME MENSUAL', fontsize=10, fontweight='bold',
+                 color=DARK, va='top', ha='left')
+        from matplotlib.lines import Line2D
+        line = Line2D([0.07, 0.28], [0.915, 0.915], transform=fig.transFigure,
+                      color=GOLD, linewidth=2.5)
+        fig.add_artist(line)
+        ax = fig.add_axes([0.07, 0.08, 0.89, 0.82])
+    else:
+        ax = fig.add_axes([0.07, 0.08, 0.89, 0.95])
     ax.set_facecolor('#ffffff')
 
     x = np.arange(len(MESES_ORDER))
