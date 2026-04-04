@@ -62,8 +62,8 @@ def generate_chart_base64(meses_data: dict, ytd: float = None, show_title: bool 
     ax.spines['left'].set_color('#e2e5ea')
     ax.spines['bottom'].set_color('#e2e5ea')
 
-    # Sin titulo en el grafico
-    ax.legend(fontsize=8, loc='upper left', framealpha=0.9, edgecolor='#e2e5ea')
+    legend_loc = 'upper left' if show_title else 'upper right'
+    ax.legend(fontsize=8, loc=legend_loc, framealpha=0.9, edgecolor='#e2e5ea')
 
     # YTD box — centrado en la parte superior derecha, no abajo
     if ytd is not None:
