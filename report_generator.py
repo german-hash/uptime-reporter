@@ -253,7 +253,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
 <div class="page">
   <div class="header">
     <div>
-      <div class="subtitle">#TodosSomosDigitales</div>
+      <div class="subtitle">Innovación y Tecnología</div>
       <h1>Uptime · Ecosistema Digital</h1>
       <div style="font-size:13px;color:#2d2d2d;margin-top:4px;opacity:0.7">{mes_nombre} {anio} — Reporte Mensual</div>
     </div>
@@ -351,7 +351,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
         <tr class="degradacion"><td rowspan="3"><span class="event-badge degradacion">Degradación</span></td><td rowspan="3">Componentes</td><td>En la detección</td><td>Equipos de IT</td><td>PO / Quien detecta</td><td>Dimensionar impacto y workarounds</td></tr>
         <tr class="degradacion"><td>A los 15'</td><td>Liderazgo CTO / Call Center</td><td>Germán / Edgardo / Diego</td><td>Comentar componente e impacto</td></tr>
         <tr class="degradacion"><td>A los 60'</td><td>MD's IT Div / IT País</td><td>IT Div / IT País</td><td>Acciones particulares</td></tr>
-        <tr class="resolucion"><td><span class="event-badge resolucion">Resolución</span></td><td>Componente afectado</td><td>Al confirmar resolución</td><td>IT / Advance / Mercado</td><td>Germán / Edgardo / Diego</td><td>Informar tiempo afectado y GO del servicio</td></tr>
+        <tr class="resolucion"><td><span class="event-badge resolucion">Resolución</span></td><td>Componente afectado</td><td>Al confirmar resolución</td><td>IT / Innovación y Tecnología / Mercado</td><td>Germán / Edgardo / Diego</td><td>Informar tiempo afectado y GO del servicio</td></tr>
       </tbody>
     </table>
     </div>
@@ -369,7 +369,7 @@ def generate_report_html(data: dict, mes_nombre: str, anio: int) -> str:
       }}
     }}
   </script>
-  <div class="footer">Generado automáticamente · {mes_nombre} {anio} · Ecosistema Digital · #TodosSomosDigitales</div>
+  <div class="footer">Generado automáticamente · {mes_nombre} {anio} · Ecosistema Digital · Innovación y Tecnología</div>
 </div>
 </body>
 </html>"""
